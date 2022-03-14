@@ -8,6 +8,7 @@ import { uuid } from "./helpers";
 interface ICoords {
   x: number;
   y: number;
+  frame: number;
 }
 
 const DEBUG = false; // Render debug physics entities
@@ -52,7 +53,33 @@ class GameScene extends Phaser.Scene {
     this.wsClient.onopen = (event) => console.log(event);
     // TODO: multiplayer functionality
     this.wsClient.onmessage = (wsMsgEvent) => {
-      console.log(wsMsgEvent);
+      const playersCoordinates: { [id: string]: ICoords } = JSON.parse(
+        wsMsgEvent.data
+      );
+      for (const playerId of Object.keys(playersCoordinates)) {
+        if (playerId == this.myId) {
+          continue;
+        }
+
+        const playerCoordinates = playersCoordinates[playerId];
+        const { x, y, frame } = playerCoordinates;
+        if (!(playerId in this.players)) {
+          this.players[playerId] = this.add.sprite(x, y, "player", frame);
+          continue;
+        }
+
+        // Have already seen this player before, just update
+        const player = this.players[playerId];
+        if (player.texture.key === "__MISSING") {
+          player.destroy();
+          this.players[playerId] = this.add.sprite(x, y, "player", frame);
+          continue;
+        }
+
+        player.setX(x);
+        player.setY(y);
+        player.setFrame(frame);
+      }
     };
   }
 
