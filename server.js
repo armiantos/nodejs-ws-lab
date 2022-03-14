@@ -18,7 +18,7 @@ function bundleClient() {
     contentHash: true,
     bundleNodeModules: true,
     watch: false,
-    detailedReport: true
+    detailedReport: true,
   };
   const bundler = new ParcelBundler("index.html", options);
   return bundler.bundle();
@@ -30,24 +30,28 @@ function bundleClient() {
 function setupWSServer(server) {
   const wss = new WebSocketServer({
     server,
-    autoAcceptConnections: false
+    autoAcceptConnections: false,
   });
-  let actorCoordinates = { x: 100, y: 100 };
+  let actorsCoordinates = {};
   wss.on("connection", (ws) => {
     ws.on("message", (rawMsg) => {
       console.log(`RECV: ${rawMsg}`);
-      const incommingMessage = JSON.parse(rawMsg);
-      actorCoordinates.x = incommingMessage.x;
-      actorCoordinates.y = incommingMessage.y;
+      const incomingMessage = JSON.parse(rawMsg);
+      actorsCoordinates[incomingMessage.id] = {
+        x: incomingMessage.x,
+        y: incomingMessage.y,
+        frame: incomingMessage.frame,
+      };
       wss.clients.forEach((wsClient) => {
-        wsClient.send(JSON.stringify(actorCoordinates));
-      })
+        wsClient.send(JSON.stringify(actorsCoordinates));
+      });
     });
-    ws.send(JSON.stringify(actorCoordinates));
+    ws.send(JSON.stringify(actorsCoordinates));
   });
   wss.on("listening", () => {
     const addr = server.address();
-    const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+    const bind =
+      typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
     console.log(`WebSocketServer listening on ${bind}`);
   });
   return wss;
@@ -59,16 +63,17 @@ function setupWSServer(server) {
 function setupServer() {
   // Setup the Express application
   const app = express();
-  app.set("port", PORT)
-  app.use("/", express.static(PUBLIC_DIR))
-  app.use("/static", express.static(STATIC_DIR))
+  app.set("port", PORT);
+  app.use("/", express.static(PUBLIC_DIR));
+  app.use("/static", express.static(STATIC_DIR));
 
   // Setup the HTTP Web Server
   const server = http.createServer(app);
   server.listen(PORT);
   server.on("listening", () => {
     const addr = server.address();
-    const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+    const bind =
+      typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
     console.log(`WebServer listening on ${bind}`);
   });
   server.on("error", (err) => {
