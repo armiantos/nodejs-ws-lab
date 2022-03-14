@@ -22,7 +22,9 @@ class GameScene extends Phaser.Scene {
   private upKey?: Phaser.Input.Keyboard.Key;
   private downKey?: Phaser.Input.Keyboard.Key;
 
-  constructor() { super({ key: "GameScene" }); }
+  constructor() {
+    super({ key: "GameScene" });
+  }
 
   /**
    * Load the assets required by the scene
@@ -31,7 +33,8 @@ class GameScene extends Phaser.Scene {
     this.load.tilemapCSV("map", "static/level_map.csv");
     this.load.image("tiles", "static/tiles_16.png");
     this.load.spritesheet("player", "static/spaceman.png", {
-      frameWidth: 16, frameHeight: 16
+      frameWidth: 16,
+      frameHeight: 16,
     });
   }
 
@@ -44,8 +47,8 @@ class GameScene extends Phaser.Scene {
     this.wsClient.onopen = (event) => console.log(event);
     // TODO: multiplayer functionality
     this.wsClient.onmessage = (wsMsgEvent) => {
-      console.log(wsMsgEvent)
-    }
+      console.log(wsMsgEvent);
+    };
   }
 
   /**
@@ -66,25 +69,25 @@ class GameScene extends Phaser.Scene {
       key: "left",
       frames: this.anims.generateFrameNumbers("player", { start: 8, end: 9 }),
       frameRate: 10,
-      repeat: -1
+      repeat: -1,
     });
     this.anims.create({
       key: "right",
       frames: this.anims.generateFrameNumbers("player", { start: 1, end: 2 }),
       frameRate: 10,
-      repeat: -1
+      repeat: -1,
     });
     this.anims.create({
       key: "up",
       frames: this.anims.generateFrameNumbers("player", { start: 11, end: 13 }),
       frameRate: 10,
-      repeat: -1
+      repeat: -1,
     });
     this.anims.create({
       key: "down",
       frames: this.anims.generateFrameNumbers("player", { start: 4, end: 6 }),
       frameRate: 10,
-      repeat: -1
+      repeat: -1,
     });
 
     // Player game object
@@ -92,36 +95,53 @@ class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, layer);
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(
-      0, 0, tileMap.widthInPixels, tileMap.heightInPixels
+      0,
+      0,
+      tileMap.widthInPixels,
+      tileMap.heightInPixels
     );
 
     // Keyboard input bindings
-    this.leftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-    this.rightKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+    this.leftKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.LEFT
+    );
+    this.rightKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.RIGHT
+    );
     this.upKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-    this.downKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+    this.downKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.DOWN
+    );
   }
 
   public update() {
     if (this.player) {
       let moving = false;
       if (this.leftKey && this.leftKey.isDown) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(-this.VELOCITY);
+        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(
+          -this.VELOCITY
+        );
         this.player.play("left", true);
         moving = true;
       } else if (this.rightKey && this.rightKey.isDown) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(this.VELOCITY);
+        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(
+          this.VELOCITY
+        );
         this.player.play("right", true);
         moving = true;
       } else {
         (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
       }
       if (this.upKey && this.upKey.isDown) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityY(-this.VELOCITY);
+        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityY(
+          -this.VELOCITY
+        );
         this.player.play("up", true);
         moving = true;
       } else if (this.downKey && this.downKey.isDown) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityY(this.VELOCITY);
+        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityY(
+          this.VELOCITY
+        );
         this.player.play("down", true);
         moving = true;
       } else {
@@ -136,7 +156,6 @@ class GameScene extends Phaser.Scene {
   }
 }
 
-
 // Phaser configuration variables
 const config: GameConfig = {
   type: Phaser.AUTO,
@@ -146,10 +165,10 @@ const config: GameConfig = {
   input: { keyboard: true },
   physics: {
     default: "arcade",
-    arcade: { debug: DEBUG }
+    arcade: { debug: DEBUG },
   },
-  render: { pixelArt: true, antialias: false }
-}
+  render: { pixelArt: true, antialias: false },
+};
 
 class LabDemoGame extends Phaser.Game {
   constructor(config: GameConfig) {
