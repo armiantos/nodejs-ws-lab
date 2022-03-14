@@ -3,6 +3,8 @@
 
 import * as Phaser from "phaser";
 
+import { uuid } from "./helpers";
+
 interface ICoords {
   x: number;
   y: number;
@@ -16,7 +18,10 @@ class GameScene extends Phaser.Scene {
 
   private VELOCITY = 100;
   private wsClient?: WebSocket;
-  private player?: Phaser.GameObjects.Sprite;
+
+  private myId = uuid();
+  private players: { [id: string]: Phaser.GameObjects.Sprite } = {};
+
   private leftKey?: Phaser.Input.Keyboard.Key;
   private rightKey?: Phaser.Input.Keyboard.Key;
   private upKey?: Phaser.Input.Keyboard.Key;
@@ -91,9 +96,9 @@ class GameScene extends Phaser.Scene {
     });
 
     // Player game object
-    this.player = this.physics.add.sprite(48, 48, "player", 1);
-    this.physics.add.collider(this.player, layer);
-    this.cameras.main.startFollow(this.player);
+    this.players[this.myId] = this.physics.add.sprite(48, 48, "player", 1);
+    this.physics.add.collider(this.players[this.myId], layer);
+    this.cameras.main.startFollow(this.players[this.myId]);
     this.cameras.main.setBounds(
       0,
       0,
@@ -115,43 +120,49 @@ class GameScene extends Phaser.Scene {
   }
 
   public update() {
-    if (this.player) {
+    if (this.players[this.myId]) {
       let moving = false;
       if (this.leftKey && this.leftKey.isDown) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(
-          -this.VELOCITY
-        );
-        this.player.play("left", true);
+        (
+          this.players[this.myId].body as Phaser.Physics.Arcade.Body
+        ).setVelocityX(-this.VELOCITY);
+        this.players[this.myId].play("left", true);
         moving = true;
       } else if (this.rightKey && this.rightKey.isDown) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(
-          this.VELOCITY
-        );
-        this.player.play("right", true);
+        (
+          this.players[this.myId].body as Phaser.Physics.Arcade.Body
+        ).setVelocityX(this.VELOCITY);
+        this.players[this.myId].play("right", true);
         moving = true;
       } else {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
+        (
+          this.players[this.myId].body as Phaser.Physics.Arcade.Body
+        ).setVelocityX(0);
       }
       if (this.upKey && this.upKey.isDown) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityY(
-          -this.VELOCITY
-        );
-        this.player.play("up", true);
+        (
+          this.players[this.myId].body as Phaser.Physics.Arcade.Body
+        ).setVelocityY(-this.VELOCITY);
+        this.players[this.myId].play("up", true);
         moving = true;
       } else if (this.downKey && this.downKey.isDown) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityY(
-          this.VELOCITY
-        );
-        this.player.play("down", true);
+        (
+          this.players[this.myId].body as Phaser.Physics.Arcade.Body
+        ).setVelocityY(this.VELOCITY);
+        this.players[this.myId].play("down", true);
         moving = true;
       } else {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocityY(0);
+        (
+          this.players[this.myId].body as Phaser.Physics.Arcade.Body
+        ).setVelocityY(0);
       }
       if (!moving) {
-        (this.player.body as Phaser.Physics.Arcade.Body).setVelocity(0);
-        this.player.anims.stop();
+        (
+          this.players[this.myId].body as Phaser.Physics.Arcade.Body
+        ).setVelocity(0);
+        this.players[this.myId].anims.stop();
       }
-      this.player.update();
+      this.players[this.myId].update();
     }
   }
 }
