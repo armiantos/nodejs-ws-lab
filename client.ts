@@ -120,49 +120,54 @@ class GameScene extends Phaser.Scene {
   }
 
   public update() {
-    if (this.players[this.myId]) {
+    const myPlayer = this.players[this.myId];
+    if (myPlayer) {
       let moving = false;
       if (this.leftKey && this.leftKey.isDown) {
-        (
-          this.players[this.myId].body as Phaser.Physics.Arcade.Body
-        ).setVelocityX(-this.VELOCITY);
-        this.players[this.myId].play("left", true);
+        (myPlayer.body as Phaser.Physics.Arcade.Body).setVelocityX(
+          -this.VELOCITY
+        );
+        myPlayer.play("left", true);
         moving = true;
       } else if (this.rightKey && this.rightKey.isDown) {
-        (
-          this.players[this.myId].body as Phaser.Physics.Arcade.Body
-        ).setVelocityX(this.VELOCITY);
-        this.players[this.myId].play("right", true);
+        (myPlayer.body as Phaser.Physics.Arcade.Body).setVelocityX(
+          this.VELOCITY
+        );
+        myPlayer.play("right", true);
         moving = true;
       } else {
-        (
-          this.players[this.myId].body as Phaser.Physics.Arcade.Body
-        ).setVelocityX(0);
+        (myPlayer.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
       }
       if (this.upKey && this.upKey.isDown) {
-        (
-          this.players[this.myId].body as Phaser.Physics.Arcade.Body
-        ).setVelocityY(-this.VELOCITY);
-        this.players[this.myId].play("up", true);
+        (myPlayer.body as Phaser.Physics.Arcade.Body).setVelocityY(
+          -this.VELOCITY
+        );
+        myPlayer.play("up", true);
         moving = true;
       } else if (this.downKey && this.downKey.isDown) {
-        (
-          this.players[this.myId].body as Phaser.Physics.Arcade.Body
-        ).setVelocityY(this.VELOCITY);
-        this.players[this.myId].play("down", true);
+        (myPlayer.body as Phaser.Physics.Arcade.Body).setVelocityY(
+          this.VELOCITY
+        );
+        myPlayer.play("down", true);
         moving = true;
       } else {
-        (
-          this.players[this.myId].body as Phaser.Physics.Arcade.Body
-        ).setVelocityY(0);
+        (myPlayer.body as Phaser.Physics.Arcade.Body).setVelocityY(0);
       }
       if (!moving) {
-        (
-          this.players[this.myId].body as Phaser.Physics.Arcade.Body
-        ).setVelocity(0);
-        this.players[this.myId].anims.stop();
+        (myPlayer.body as Phaser.Physics.Arcade.Body).setVelocity(0);
+        myPlayer.anims.stop();
+      } else if (this.wsClient) {
+        // Send current player location to server
+        this.wsClient.send(
+          JSON.stringify({
+            id: this.myId,
+            x: myPlayer.x,
+            y: myPlayer.y,
+            frame: myPlayer.frame.name,
+          })
+        );
       }
-      this.players[this.myId].update();
+      myPlayer.update();
     }
   }
 }
